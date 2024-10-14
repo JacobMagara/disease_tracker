@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -12,6 +12,7 @@
         <nav>
             <a href="about.html">About</a>
             <a href="home.html">Home</a>
+            <a href="add_data.html">Add Data</a>
         </nav>
         <table id="data-table">
             <thead>
@@ -26,10 +27,69 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Data will be inserted here by JavaScript -->
             </tbody>
         </table>
     </div>
     <script src="view_data.js"></script>
 </body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Data</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>View Data</h1>
+        <nav>
+            <a href="about.html">About</a>
+            <a href="home.html">Home</a>
+            <a href="add_data.html">Add Data</a>
+        </nav>
+        
+        <div class="data">
+            
+            <div class="incidences">
+                <table id="incidences-table">
+                    <h2>Incidences</h2>
+                    <thead>
+                        <tr>
+                            <th>Location</th>
+                            <th>Disease</th>
+                            <th>Date Reported</th>
+                            <th>Cases</th>
+                            <th>Deaths</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Incidences data will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="vaccinations">
+                <table id="vaccinations-table">
+                    <h2>Vaccinations</h2>
+                    <thead>
+                        <tr>
+                            <th>Location</th>
+                            <th>Disease</th>
+                            <th>Date of Vaccination</th>
+                            <th>Vaccinated</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Vaccinations data will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="view_data.js"></script>
+</body>
 </html>
+

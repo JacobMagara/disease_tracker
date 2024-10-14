@@ -255,3 +255,22 @@ a:hover {
         padding: 10px;
     }
 }
+
+.nav-bar{
+    margin-bottom: 20px;
+}
+
+.data {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.data table td{
+    padding: 10px;
+}
+
+.data h2 {
+    text-align: center;
+}

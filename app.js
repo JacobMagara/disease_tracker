@@ -173,58 +173,129 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// Route to add a vaccination/incidence with user ID (POST /api/expenses/add)
-app.post('/api/expenses/add', (req, res) => {
+// // Route to add a vaccination/incidence with user ID (POST /api/expenses/add)
+// app.post('/api/add_data', (req, res) => {
+//     const { user_id, type, disease_name, location, number_of_cases, number_of_deaths, number_vaccinated } = req.body;
+
+//     let sql;
+//     let values;
+
+//     if (type === 'incident') {
+//         sql = 'INSERT INTO incidences (user_id, disease_name, location, date_reported, number_of_cases, number_of_deaths) VALUES (?, ?, ?, NOW(), ?, ?)';
+//         values = [user_id, disease_name, location, number_of_cases, number_of_deaths];
+//     } else if (type === 'vaccination') {
+//         sql = 'INSERT INTO vaccinations (user_id, disease_name, location, date_of_vaccination, number_of_vaccinated) VALUES (?, ?, ?, NOW(), ?)';
+//         values = [user_id, disease_name, location, number_vaccinated];
+//     } else {
+//         return res.status(400).send('Invalid type');
+//     }
+
+//     db.query(sql, values, (err) => {
+//         if (err) {
+//             console.log("Error inserting record into the database:", err.message);
+//             return res.status(500).send('Error adding record');
+//         }
+//         res.status(200).send({ success: true });
+//     });
+// });
+
+// POST route to handle adding new incident or vaccination record
+app.post('/api/add_data', (req, res) => {
     const { user_id, type, disease_name, location, number_of_cases, number_of_deaths, number_vaccinated } = req.body;
 
     let sql;
     let values;
 
+    // Handle incident type
     if (type === 'incident') {
-        sql = 'INSERT INTO incidences (user_id, disease_name, location, date_reported, number_of_cases, number_of_deaths) VALUES (?, ?, ?, NOW(), ?, ?)';
-        values = [user_id, disease_name, location, number_of_cases, number_of_deaths];
-    } else if (type === 'vaccination') {
-        sql = 'INSERT INTO vaccinations (user_id, disease_name, location, date_of_vaccination, number_of_vaccinated) VALUES (?, ?, ?, NOW(), ?)';
+        sql = `
+            INSERT INTO incidences (user_id, disease_name, location, date_reported, number_of_cases, number_of_deaths) 
+            VALUES (?, ?, ?, NOW(), ?, ?)
+        `;
+        values = [user_id, disease_name, location, number_of_cases, number_of_deaths || 0]; // Default deaths to 0 if not provided
+    } 
+    // Handle vaccination type
+    else if (type === 'vaccination') {
+        sql = `
+            INSERT INTO vaccinations (user_id, disease_name, location, date_of_vaccination, number_of_vaccinated) 
+            VALUES (?, ?, ?, NOW(), ?)
+        `;
         values = [user_id, disease_name, location, number_vaccinated];
-    } else {
-        return res.status(400).send('Invalid type');
+    } 
+    // Handle invalid type
+    else {
+        return res.status(400).json({ error: 'Invalid type specified' });
     }
 
+    // Execute the SQL query
     db.query(sql, values, (err) => {
         if (err) {
-            console.log("Error inserting record into the database:", err.message);
-            return res.status(500).send('Error adding record');
+            console.error("Error inserting record into the database:", err.message);
+            return res.status(500).json({ error: 'Error adding record to the database' });
         }
-        res.status(200).send({ success: true });
+        res.status(200).json({ success: true, message: `${type.charAt(0).toUpperCase() + type.slice(1)} added successfully.` });
     });
 });
 
-// Route to view incidence/vaccination by user ID (GET /api/expenses/view/:user_id)
-app.get('/api/expenses/view/:user_id', (req, res) => {
+
+// // Route to view incidence/vaccination by user ID (GET /api/expenses/view/:user_id)
+// app.get('/api/expenses/view/:user_id', (req, res) => {
+//     const { user_id } = req.params;
+
+//     const incidentsSql = 'SELECT * FROM incidences WHERE user_id = ?';
+//     const vaccinationsSql = 'SELECT * FROM vaccinations WHERE user_id = ?';
+
+//     db.query(incidentsSql, [user_id], (err, incidents) => {
+//         if (err) {
+//             console.log("Error retrieving incidences:", err.message);
+//             return res.status(500).send('Error retrieving incidences');
+//         }
+
+//         db.query(vaccinationsSql, [user_id], (err, vaccinations) => {
+//             if (err) {
+//                 console.log("Error retrieving vaccinations:", err.message);
+//                 return res.status(500).send('Error retrieving vaccinations');
+//             }
+
+//             res.status(200).send({
+//                 incidents,
+//                 vaccinations
+//             });
+//         });
+//     });
+// });
+
+// Route to view both incidence and vaccination by user ID (GET /api/view_data/:user_id)
+// Route to view both incidences and vaccinations by user ID (GET /api/view_data/:user_id)
+app.get('/api/view_data/:user_id', (req, res) => {
     const { user_id } = req.params;
 
-    const incidentsSql = 'SELECT * FROM incidences WHERE user_id = ?';
-    const vaccinationsSql = 'SELECT * FROM vaccinations WHERE user_id = ?';
+    const incidentsSql = 'SELECT disease_name, location, date_reported, number_of_cases, number_of_deaths FROM incidences WHERE user_id = ?';
+    const vaccinationsSql = 'SELECT disease_name, location, date_of_vaccination, number_of_vaccinated FROM vaccinations WHERE user_id = ?';
 
-    db.query(incidentsSql, [user_id], (err, incidents) => {
+    // First, query incidences
+    db.query(incidentsSql, [user_id], (err, incidences) => {
         if (err) {
             console.log("Error retrieving incidences:", err.message);
             return res.status(500).send('Error retrieving incidences');
         }
 
+        // Then, query vaccinations
         db.query(vaccinationsSql, [user_id], (err, vaccinations) => {
             if (err) {
                 console.log("Error retrieving vaccinations:", err.message);
                 return res.status(500).send('Error retrieving vaccinations');
             }
 
-            res.status(200).send({
-                incidents,
-                vaccinations
+            // Send separate arrays for incidences and vaccinations
+            res.status(200).json({
+                incidences: incidences,
+                vaccinations: vaccinations
             });
         });
     });
 });
+
 
 // Serve the login page
 app.get('/login', (req, res) => {
